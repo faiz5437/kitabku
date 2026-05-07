@@ -24,6 +24,8 @@ class ReadingRepository {
       _wahaisuntahaImage,
       _ibadallahImage,
       _yaArhamarRohiminImage,
+      _nasyidLailahaIllallahImage,
+      _nasyidSholatullahImage,
       _doaImage,
       _yaRabbiImage,
       _yaRasulImage,
@@ -742,6 +744,30 @@ mereka kekal di dalamnya untuk selama-lamanya, (3)''',
     latinText: '',
     translationText: '',
     imageUrl: 'assets/images/my_assets/ya_arhamar_rohimin.jpg',
+  );
+
+  static const _nasyidLailahaIllallahImage = ReadingModel(
+    id: 'nasyid-lailaha-illallah',
+    title: 'Nasyid Lailaha Illallah',
+    subtitle: 'Bacaan Nasyid',
+    category: 'E-Book',
+    icon: Icons.image_rounded,
+    arabicText: '',
+    latinText: '',
+    translationText: '',
+    imageUrl: 'assets/images/my_assets/nasyid_lailaha_illallah.jpg',
+  );
+
+  static const _nasyidSholatullahImage = ReadingModel(
+    id: 'nasyid-sholatullah',
+    title: 'Nasyid Sholatullah',
+    subtitle: 'Bacaan Nasyid',
+    category: 'E-Book',
+    icon: Icons.image_rounded,
+    arabicText: '',
+    latinText: '',
+    translationText: '',
+    imageUrl: 'assets/images/my_assets/nasyid_sholatullah.jpg',
   );
 
   static const _yaRabbiImage = ReadingModel(

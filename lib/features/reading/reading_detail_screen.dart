@@ -32,10 +32,17 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
             expandedHeight: 200,
             pinned: true,
             backgroundColor: AppColors.primary,
-            leading: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_ios_rounded),
-            ),
+            automaticallyImplyLeading: !(widget.reading.id == 'yasin-fadilah' ||
+                widget.reading.id == 'tahlil' ||
+                widget.reading.id == 'husainiyah'),
+            leading: (widget.reading.id == 'yasin-fadilah' ||
+                    widget.reading.id == 'tahlil' ||
+                    widget.reading.id == 'husainiyah')
+                ? null
+                : IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back_ios_rounded),
+                  ),
             actions: [
               if (widget.reading.images == null && widget.reading.imageUrl == null) ...[
                 IconButton(
