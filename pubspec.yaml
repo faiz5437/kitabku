@@ -33,7 +33,6 @@ dependencies:
   http: ^1.1.0
   shared_preferences: ^2.2.2
   google_fonts: ^6.1.0
-  syncfusion_flutter_pdfviewer: ^23.1.44
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -80,7 +79,7 @@ flutter:
     - assets/images/my_assets/husainiyah/
     - assets/images/my_assets/maulid_diba/
     - assets/images/my_assets/tahlil/
-    - assets/images/pdf/
+    - assets/images/my_assets/yasin_fadilah/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

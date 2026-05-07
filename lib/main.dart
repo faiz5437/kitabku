@@ -4,8 +4,8 @@ import 'config/theme/app_theme.dart';
 import 'config/theme/app_colors.dart';
 import 'features/home/home_screen.dart';
 import 'features/home/api_test_screen.dart';
-import 'features/doa/doa_list_screen.dart';
-import 'features/bookmark/bookmark_screen.dart';
+import 'features/reading/reading_detail_screen.dart';
+import 'data/repositories/reading_repository.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/splash/splash_screen.dart';
 import 'core/services/app_service.dart';
@@ -59,8 +59,9 @@ class _MainNavigationState extends State<MainNavigation>
   List<Widget> get _screens => [
         const HomeScreen(),
         ApiTestScreen(isActive: _currentIndex == 1),
-        const DoaListScreen(),
-        const BookmarkScreen(),
+        ReadingDetailScreen(reading: ReadingRepository.getYasinFadilah()),
+        ReadingDetailScreen(reading: ReadingRepository.getTahlil()),
+        ReadingDetailScreen(reading: ReadingRepository.getHusainiyah()),
         const SettingsScreen(),
       ];
 
@@ -74,13 +75,17 @@ class _MainNavigationState extends State<MainNavigation>
         activeIcon: Icons.menu_book_rounded,
         label: 'Al-Quran'),
     _NavItem(
+        icon: Icons.library_books_outlined,
+        activeIcon: Icons.library_books_rounded,
+        label: 'Yasin'),
+    _NavItem(
         icon: Icons.volunteer_activism_outlined,
         activeIcon: Icons.volunteer_activism_rounded,
-        label: 'Doa'),
+        label: 'Tahlil'),
     _NavItem(
-        icon: Icons.bookmark_outline_rounded,
-        activeIcon: Icons.bookmark_rounded,
-        label: 'Bookmark'),
+        icon: Icons.auto_stories_outlined,
+        activeIcon: Icons.auto_stories_rounded,
+        label: 'Husainiyah'),
     _NavItem(
         icon: Icons.settings_outlined,
         activeIcon: Icons.settings_rounded,
@@ -107,7 +112,7 @@ class _MainNavigationState extends State<MainNavigation>
       ),
       extendBody: true,
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(24, 0, 24, 30),
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 30),
         decoration: BoxDecoration(
           color: AppColors.backgroundSecondary,
           borderRadius: BorderRadius.circular(30),

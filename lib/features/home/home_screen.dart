@@ -11,13 +11,36 @@ import 'widgets/hero_banner.dart';
 
 /// Halaman utama aplikasi KitabKu
 /// Menampilkan hero banner, daftar surat, dan quick access doa
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  final List<ReadingModel> _allReadings = ReadingRepository.getAllReadings();
+  final List<DoaModel> _allDoas = ReadingRepository.getAllDoa();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<ReadingModel> get _filteredReadings {
+    if (_searchQuery.isEmpty) return _allReadings;
+    return _allReadings.where((reading) {
+      return reading.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          reading.category.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final readings = ReadingRepository.getAllReadings();
-    final doas = ReadingRepository.getAllDoa();
+    final filteredReadings = _filteredReadings;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
@@ -28,33 +51,78 @@ class HomeScreen extends StatelessWidget {
             bottom: false,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
+              child: Column(
                 children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: AppColors.primaryGradient,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.menu_book_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'KitabKu',
+                        style: AppTextStyles.heading2.copyWith(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // ── Search Bar ──
                   Container(
-                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.menu_book_rounded,
                       color: Colors.white,
-                      size: 20,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'KitabKu',
-                    style: AppTextStyles.heading2.copyWith(
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.search_rounded,
-                      color: AppColors.textSecondary,
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Cari bacaan atau surat...',
+                        hintStyle: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary.withOpacity(0.5),
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search_rounded,
+                          color: AppColors.primary,
+                        ),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.close_rounded, size: 20),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchQuery = '';
+                                  });
+                                },
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -62,60 +130,91 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // Sticky Hero Banner
-          const HeroBanner(),
-
           // ── Scrollable Content ──
           Expanded(
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
+                if (_searchQuery.isEmpty)
+                  const SliverToBoxAdapter(
+                    child: HeroBanner(),
+                  ),
+
                 // ── Section: Bacaan Surat ──
                 SliverToBoxAdapter(
                   child: _SectionHeader(
-                    title: 'Bacaan Surat',
-                    subtitle: '${readings.length} surat tersedia',
+                    title: 'Daftar Bacaan',
+                    subtitle: _searchQuery.isEmpty
+                        ? '${filteredReadings.length} bacaan tersedia'
+                        : 'Ditemukan ${filteredReadings.length} hasil',
                     icon: Icons.menu_book_rounded,
                   ),
                 ),
 
                 // ── List Surat ──
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final reading = readings[index];
-                      return ReadingCard(
-                        reading: reading,
-                        index: index,
-                        onTap: () => _openReading(context, reading),
-                      );
-                    },
-                    childCount: readings.length,
+                if (filteredReadings.isEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.search_off_rounded,
+                            size: 64,
+                            color: AppColors.textSecondary.withOpacity(0.2),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Tidak menemukan "${_searchQuery}"',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final reading = filteredReadings[index];
+                        return ReadingCard(
+                          reading: reading,
+                          index: index,
+                          onTap: () => _openReading(context, reading),
+                        );
+                      },
+                      childCount: filteredReadings.length,
+                    ),
                   ),
-                ),
 
-                // ── Section: Doa Harian ──
-                SliverToBoxAdapter(
-                  child: _SectionHeader(
-                    title: 'Doa Harian',
-                    subtitle: '${doas.length} doa pilihan',
-                    icon: Icons.volunteer_activism_rounded,
+                /*
+                if (_searchQuery.isEmpty) ...[
+                  // ── Section: Doa Harian ──
+                  SliverToBoxAdapter(
+                    child: _SectionHeader(
+                      title: 'Doa Harian',
+                      subtitle: '${_allDoas.length} doa pilihan',
+                      icon: Icons.volunteer_activism_rounded,
+                    ),
                   ),
-                ),
 
-                // ── List Doa (Quick preview, 4 items) ──
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final doa = doas[index];
-                      return DoaCard(
-                        doa: doa,
-                        onTap: () => _openDoa(context, doa),
-                      );
-                    },
-                    childCount: doas.length > 4 ? 4 : doas.length,
+                  // ── List Doa (Quick preview, 4 items) ──
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final doa = _allDoas[index];
+                        return DoaCard(
+                          doa: doa,
+                          onTap: () => _openDoa(context, doa),
+                        );
+                      },
+                      childCount: _allDoas.length > 4 ? 4 : _allDoas.length,
+                    ),
                   ),
-                ),
+                ],
+                */
 
                 // Bottom spacing for floating navbar
                 const SliverToBoxAdapter(

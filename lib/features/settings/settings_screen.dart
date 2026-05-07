@@ -86,61 +86,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   const SizedBox(height: 8),
 
-                  // Tampilan Section
-                  _buildSectionTitle('Tampilan'),
-                  const SizedBox(height: 8),
-                  _buildSettingsCard(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.text_fields_rounded, color: AppColors.primary, size: 20),
-                            const SizedBox(width: 14),
-                            const Text('Ukuran Teks Arab', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                            const Spacer(),
-                            Text('${_appService.fontSizeArab.toInt()}'),
-                          ],
-                        ),
-                      ),
-                      Slider(
-                        value: _appService.fontSizeArab,
-                        min: 18,
-                        max: 48,
-                        activeColor: AppColors.primary,
-                        onChanged: (val) => _appService.setFontSizeArab(val),
-                      ),
-                      const Divider(height: 1),
-                      _SettingsTile(
-                        icon: Icons.translate_rounded,
-                        title: 'Tampilkan Latin',
-                        subtitle: _appService.showLatin ? 'Aktif' : 'Non-aktif',
-                        trailing: Switch(
-                          value: _appService.showLatin,
-                          activeColor: AppColors.primary,
-                          onChanged: (val) => _appService.setShowLatin(val),
-                        ),
-                        onTap: () => _appService.setShowLatin(!_appService.showLatin),
-                      ),
-                      const Divider(height: 1),
-                      _SettingsTile(
-                        icon: Icons.language_rounded,
-                        title: 'Tampilkan Terjemahan',
-                        subtitle: _appService.showTranslation ? 'Aktif' : 'Non-aktif',
-                        trailing: Switch(
-                          value: _appService.showTranslation,
-                          activeColor: AppColors.primary,
-                          onChanged: (val) => _appService.setShowTranslation(val),
-                        ),
-                        onTap: () => _appService.setShowTranslation(!_appService.showTranslation),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-
                   // Tentang Section
-                  _buildSectionTitle('Tentang'),
+                  _buildSectionTitle('Informasi'),
                   const SizedBox(height: 8),
                   _buildSettingsCard(
                     children: [
@@ -148,21 +95,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         icon: Icons.info_outline_rounded,
                         title: 'Tentang Aplikasi',
                         subtitle: 'KitabKu v1.0.0',
-                        onTap: () {},
+                        onTap: () => _showAboutPopup(context),
                       ),
                       const Divider(height: 1),
                       _SettingsTile(
                         icon: Icons.star_outline_rounded,
                         title: 'Beri Rating',
                         subtitle: 'Dukung pengembangan',
-                        onTap: () {},
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Fitur rating akan segera hadir!')),
+                          );
+                        },
                       ),
                       const Divider(height: 1),
                       _SettingsTile(
                         icon: Icons.share_rounded,
                         title: 'Bagikan Aplikasi',
-                        subtitle: 'Ajak teman beribadah',
-                        onTap: () {},
+                        subtitle: 'Ajak teman menggunakan kitabku',
+                        onTap: () {
+                          // Hardcoded link as requested
+                          const shareLink =
+                              'https://play.google.com/store/apps/details?id=com.faiz.kitabku';
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Link disalin: $shareLink')),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -184,13 +145,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'Versi 1.0.0',
                           style: AppTextStyles.bodySmall,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Developed by:',
                           style: TextStyle(
-                            fontSize: 16,
-                            color: AppColors.textLight,
-                          ),
+                              fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        const Text(
+                          'Muhamad Faiz, S.Kom',
+                          style:
+                              TextStyle(fontSize: 14, color: AppColors.primary),
                         ),
                       ],
                     ),
@@ -200,6 +164,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAboutPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Tentang Aplikasi'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Image.asset(
+                'assets/images/logo_app.png',
+                height: 80,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.menu_book_rounded,
+                    color: AppColors.primary,
+                    size: 64),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'KitabKu adalah aplikasi bacaan Islamic yang berisi kumpulan Surat, Manaqib, Tahlil, dan doa-doa harian.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+            const Text('Developer:',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Muhamad Faiz, S.Kom'),
+            const SizedBox(height: 8),
+            const Text('Versi:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('1.0.0 (Release Candidate)'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
           ),
         ],
       ),
@@ -269,10 +279,11 @@ class _SettingsTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTextStyles.bodyLarge.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  )),
+                  Text(title,
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      )),
                   Text(subtitle, style: AppTextStyles.bodySmall),
                 ],
               ),

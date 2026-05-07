@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kitab_ku/features/home/surah_detail_screen.dart';
+import 'package:kitab_ku/features/bookmark/bookmark_screen.dart';
 import '../../data/models/surah_model.dart';
 import '../../data/repositories/surah_repository.dart';
 import '../../config/theme/app_colors.dart';
@@ -55,6 +56,19 @@ class _ApiTestScreenState extends State<ApiTestScreen> with AutomaticKeepAliveCl
             elevation: 0,
             backgroundColor: AppColors.primary,
             automaticallyImplyLeading: false,
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BookmarkScreen()),
+                  );
+                },
+                icon: const Icon(Icons.bookmark_rounded, color: Colors.white),
+                tooltip: 'Bookmarks',
+              ),
+              const SizedBox(width: 8),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: false,
               titlePadding: const EdgeInsetsDirectional.only(start: 20, bottom: 16),

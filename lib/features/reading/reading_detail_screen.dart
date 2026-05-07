@@ -3,7 +3,6 @@ import '../../config/theme/app_colors.dart';
 import '../../config/theme/app_text_styles.dart';
 import '../../core/widgets/islamic_pattern_painter.dart';
 import '../../data/models/reading_model.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 /// Halaman detail bacaan (Surat)
 /// Menampilkan teks Arab, latin, dan terjemahan
@@ -38,14 +37,16 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
               icon: const Icon(Icons.arrow_back_ios_rounded),
             ),
             actions: [
-              IconButton(
-                onPressed: _showSettingsSheet,
-                icon: const Icon(Icons.tune_rounded),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.bookmark_outline_rounded),
-              ),
+              if (widget.reading.images == null && widget.reading.imageUrl == null) ...[
+                IconButton(
+                  onPressed: _showSettingsSheet,
+                  icon: const Icon(Icons.tune_rounded),
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.bookmark_outline_rounded),
+                ),
+              ],
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
@@ -107,17 +108,10 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
 
           // ── Content ──
           SliverToBoxAdapter(
-            child: widget.reading.pdfPath != null
-                ? Container(
-                    height: MediaQuery.of(context).size.height - 200,
-                    child: SfPdfViewer.asset(
-                      widget.reading.pdfPath!,
-                    ),
-                  )
-                : widget.reading.images != null
-                    ? Column(
-                        children: [
-                          ...widget.reading.images!.map((imagePath) => Padding(
+            child: widget.reading.images != null
+                ? Column(
+                    children: [
+                      ...widget.reading.images!.map((imagePath) => Padding(
                                 padding: const EdgeInsets.only(bottom: 0),
                                 child: Image.asset(
                                   imagePath,
@@ -128,10 +122,10 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
                                   },
                                 ),
                               )),
-                          const SizedBox(height: 100),
-                        ],
-                      )
-                    : widget.reading.imageUrl != null
+                      const SizedBox(height: 100),
+                    ],
+                  )
+                : widget.reading.imageUrl != null
                         ? Column(
                             children: [
                               // Check if network or asset

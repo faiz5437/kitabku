@@ -12,7 +12,6 @@ class ReadingModel {
   final String translationText;
   final String? imageUrl;
   final List<String>? images;
-  final String? pdfPath;
   final int totalAyat;
 
   const ReadingModel({
@@ -26,7 +25,6 @@ class ReadingModel {
     required this.translationText,
     this.imageUrl,
     this.images,
-    this.pdfPath,
     this.totalAyat = 0,
   });
 }
