@@ -13,7 +13,8 @@ class ApiTestScreen extends StatefulWidget {
   State<ApiTestScreen> createState() => _ApiTestScreenState();
 }
 
-class _ApiTestScreenState extends State<ApiTestScreen> with AutomaticKeepAliveClientMixin {
+class _ApiTestScreenState extends State<ApiTestScreen>
+    with AutomaticKeepAliveClientMixin {
   final SurahRepository _repository = SurahRepository();
   late Future<List<SurahModel>> _futureSurah;
 
@@ -47,7 +48,6 @@ class _ApiTestScreenState extends State<ApiTestScreen> with AutomaticKeepAliveCl
     return Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
       body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
         slivers: [
           // Header Al-Quran Premium
           SliverAppBar(
@@ -71,7 +71,8 @@ class _ApiTestScreenState extends State<ApiTestScreen> with AutomaticKeepAliveCl
             ],
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: false,
-              titlePadding: const EdgeInsetsDirectional.only(start: 20, bottom: 16),
+              titlePadding:
+                  const EdgeInsetsDirectional.only(start: 20, bottom: 16),
               title: const Text(
                 'Al-Quran',
                 style: TextStyle(
@@ -102,17 +103,54 @@ class _ApiTestScreenState extends State<ApiTestScreen> with AutomaticKeepAliveCl
             ),
           ),
 
+          // Shadow di bawah SliverAppBar
+          SliverToBoxAdapter(
+            child: Container(
+              height: 4,
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // Content List Surah
           FutureBuilder<List<SurahModel>>(
             future: _futureSurah,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primary,
+                    ),
+                  ),
                 );
               } else if (snapshot.hasError) {
                 return SliverFillRemaining(
-                  child: Center(child: Text('Error: ${snapshot.error}')),
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      _refreshData();
+                      await _futureSurah;
+                    },
+                    color: AppColors.primary,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          child: _buildErrorView(),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const SliverFillRemaining(
@@ -136,7 +174,7 @@ class _ApiTestScreenState extends State<ApiTestScreen> with AutomaticKeepAliveCl
               );
             },
           ),
-          
+
           // Spacing untuk navbar
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
@@ -146,6 +184,75 @@ class _ApiTestScreenState extends State<ApiTestScreen> with AutomaticKeepAliveCl
         backgroundColor: AppColors.primary,
         mini: true,
         child: const Icon(Icons.refresh, color: Colors.white, size: 20),
+      ),
+    );
+  }
+
+  Widget _buildErrorView() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon error
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.wifi_off_rounded,
+                size: 64,
+                color: Colors.red.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Judul
+            const Text(
+              'Koneksi Gagal',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Deskripsi
+            Text(
+              'Tidak dapat memuat data Al-Quran.\nPastikan koneksi internet Anda aktif\ndan coba lagi.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            // Tombol Coba Lagi
+            ElevatedButton.icon(
+              onPressed: _refreshData,
+              icon: const Icon(Icons.refresh_rounded, size: 20),
+              label: const Text('Coba Lagi'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -168,7 +275,8 @@ class _ApiTestScreenState extends State<ApiTestScreen> with AutomaticKeepAliveCl
           side: BorderSide(color: AppColors.border.withOpacity(0.5)),
         ),
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           leading: Container(
             width: 40,
             height: 40,

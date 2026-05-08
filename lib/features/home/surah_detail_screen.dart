@@ -43,6 +43,79 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
     if (mounted) setState(() {});
   }
 
+  void _refreshData() {
+    setState(() {
+      _futureDetailSurah = _repository.getDetailSurah(widget.nomor);
+    });
+  }
+
+  Widget _buildErrorView() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.wifi_off_rounded,
+                size: 64,
+                color: Colors.red.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Koneksi Gagal',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tidak dapat memuat data surah.\nPastikan koneksi internet Anda aktif\ndan coba lagi.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 28),
+            ElevatedButton.icon(
+              onPressed: _refreshData,
+              icon: const Icon(Icons.refresh_rounded, size: 20),
+              label: const Text('Coba Lagi'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Kembali'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,9 +123,28 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
         future: _futureDetailSurah,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return RefreshIndicator(
+              onRefresh: () async {
+                _refreshData();
+                await _futureDetailSurah;
+              },
+              color: AppColors.primary,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    child: _buildErrorView(),
+                  ),
+                ],
+              ),
+            );
           } else if (!snapshot.hasData) {
             return const Center(child: Text('Data tidak ditemukan'));
           }
@@ -117,6 +209,21 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                   ),
                 ),
               ),
+              // Shadow di bawah SliverAppBar
+              SliverToBoxAdapter(
+                child: Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               SliverPadding(
                 padding: const EdgeInsets.all(16),
                 sliver: (!_appService.showLatin && !_appService.showTranslation)
@@ -133,7 +240,8 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                               _isInitialLoad = false;
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 // Estimate position (approx 250px per verse)
-                                double estimate = (widget.initialAyat! - 1) * 250.0;
+                                double estimate =
+                                    (widget.initialAyat! - 1) * 250.0;
                                 if (estimate > 0) {
                                   _scrollController.jumpTo(estimate);
                                 }
@@ -233,7 +341,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
               color: AppColors.textPrimary,
             ),
           ),
-          
+
           // Teks Latin (Kondisional)
           if (_appService.showLatin) ...[
             const SizedBox(height: 16),
@@ -242,7 +350,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
               child: Text(
                 ayat.teksLatin,
                 style: const TextStyle(
-                  fontSize: 14, 
+                  fontSize: 14,
                   fontStyle: FontStyle.italic,
                   color: AppColors.primary,
                 ),
@@ -257,7 +365,8 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
               width: double.infinity,
               child: Text(
                 ayat.teksIndonesia,
-                style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: const TextStyle(
+                    fontSize: 14, color: AppColors.textSecondary),
               ),
             ),
           ],
@@ -267,6 +376,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
       ),
     );
   }
+
   Widget _buildMushafView(SurahDetailModel surah) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -377,7 +487,12 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: ['Amiri', 'Lateef', 'Scheherazade New', 'Noto Naskh Arabic'].map((font) {
+                      children: [
+                        'Amiri',
+                        'Lateef',
+                        'Scheherazade New',
+                        'Noto Naskh Arabic'
+                      ].map((font) {
                         final isSelected = _appService.fontFamily == font;
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../config/theme/app_colors.dart';
 import '../../config/theme/app_text_styles.dart';
 import '../../core/services/app_service.dart';
@@ -77,6 +78,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
+          // Shadow di bawah SliverAppBar
+          SliverToBoxAdapter(
+            child: Container(
+              height: 4,
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // ── Settings Items ──
           SliverToBoxAdapter(
             child: Padding(
@@ -116,12 +133,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: 'Bagikan Aplikasi',
                         subtitle: 'Ajak teman menggunakan kitabku',
                         onTap: () {
-                          // Hardcoded link as requested
-                          const shareLink =
-                              'https://drive.google.com/drive/folders/1YhW46f-cNCBSX89h0lsHbilhdvLsl-wI?usp=sharing';
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Link disalin: $shareLink')),
+                          SharePlus.instance.share(
+                            ShareParams(
+                              text:
+                                  'Yuk download aplikasi KitabKu! Kumpulan bacaan surat, manaqib, tahlil, dan lainnya.\n\nhttps://drive.google.com/drive/folders/1YhW46f-cNCBSX89h0lsHbilhdvLsl-wI?usp=sharing',
+                            ),
                           );
                         },
                       ),

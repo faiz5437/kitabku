@@ -169,6 +169,22 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
             ),
           ),
 
+          // Shadow di bawah SliverAppBar
+          SliverToBoxAdapter(
+            child: Container(
+              height: 4,
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // ── Content ──
           SliverToBoxAdapter(
             child: widget.reading.images != null
