@@ -94,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _SettingsTile(
                         icon: Icons.info_outline_rounded,
                         title: 'Tentang Aplikasi',
-                        subtitle: 'KitabKu v1.0.0',
+                        subtitle: 'KitabKu v2.0.0',
                         onTap: () => _showAboutPopup(context),
                       ),
                       const Divider(height: 1),
@@ -142,7 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Versi 1.0.0',
+                          'Versi 2.0.0',
                           style: AppTextStyles.bodySmall,
                         ),
                         const SizedBox(height: 12),
@@ -192,7 +192,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'KitabKu adalah aplikasi bacaan Islamic yang berisi kumpulan Surat, Manaqib, Tahlil, dan doa-doa harian.',
+              'KitabKu, aplikasi kitab yang berisi kumpulan Surat, Manaqib, Tahlil, dan kebutuhan bacaan lainnya.',
               style: TextStyle(fontSize: 14),
             ),
             const SizedBox(height: 16),
@@ -203,7 +203,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const Text('Muhamad Faiz, S.Kom'),
             const SizedBox(height: 8),
             const Text('Versi:', style: TextStyle(fontWeight: FontWeight.bold)),
-            const Text('1.0.0 (Release Candidate)'),
+            const Text('2.0.0 (Release Candidate)'),
           ],
         ),
         actions: [

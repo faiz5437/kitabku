@@ -166,7 +166,7 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Versi 1.0.0',
+                        'Versi 2.0.0',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.5),
                           fontSize: 12,

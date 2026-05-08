@@ -18,7 +18,7 @@ class AppColors {
   static const Color goldLight = Color(0xFFF5E6C4);
 
   // ── Background ──
-  static const Color backgroundPrimary = Color(0xFFF5F9FF);
+  static const Color backgroundPrimary = Color(0xFFFFFFFF);
   static const Color backgroundSecondary = Color(0xFFFFFFFF);
   static const Color backgroundCard = Color(0xFFFFFFFF);
   static const Color backgroundPattern = Color(0xFFEAF2FC);
@@ -44,8 +44,8 @@ class AppColors {
   static const LinearGradient headerGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF4A90D9), Color(0xFF5BA0E8), Color(0xFFF5F9FF)],
-    stops: [0.0, 0.7, 1.0],
+    colors: [Color(0xFF3A7BD5), Color(0xFF4A90D9), Color(0xFF6AABF0)],
+    stops: [0.0, 0.5, 1.0],
   );
 
   static const LinearGradient cardGradient = LinearGradient(
@@ -57,6 +57,6 @@ class AppColors {
   static const LinearGradient islamicGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF4A90D9), Color(0xFF1B7A6E)],
+    colors: [Color(0xFF2E6BC6), Color(0xFF4A90D9), Color(0xFF6AABF0)],
   );
 }

@@ -112,26 +112,31 @@ class _MainNavigationState extends State<MainNavigation>
       ),
       extendBody: true,
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(12, 0, 12, 30),
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 24),
         decoration: BoxDecoration(
           color: AppColors.backgroundSecondary,
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+            BoxShadow(
               color: AppColors.primary.withOpacity(0.15),
-              blurRadius: 25,
-              offset: const Offset(0, 10),
+              blurRadius: 30,
+              offset: const Offset(0, 8),
             ),
           ],
           border: Border.all(
-            color: AppColors.border.withOpacity(0.5),
+            color: AppColors.border.withOpacity(0.3),
             width: 0.5,
           ),
         ),
         child: SafeArea(
           bottom: false,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(_navItems.length, (index) {
@@ -171,7 +176,7 @@ class _MainNavigationState extends State<MainNavigation>
         curve: Curves.easeInOut,
         padding: EdgeInsets.symmetric(
           horizontal: isActive ? 16 : 12,
-          vertical: 8,
+          vertical: 10,
         ),
         decoration: BoxDecoration(
           color: isActive
@@ -185,15 +190,15 @@ class _MainNavigationState extends State<MainNavigation>
             Icon(
               icon,
               color: isActive ? AppColors.primary : AppColors.textLight,
-              size: 22,
+              size: 26,
             ),
             if (isActive) ...[
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
                   color: AppColors.primary,
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),

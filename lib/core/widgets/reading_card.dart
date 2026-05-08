@@ -31,11 +31,17 @@ class ReadingCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.backgroundCard,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border, width: 0.5),
+              border: Border.all(
+                  color: AppColors.border.withOpacity(0.3), width: 0.5),
               boxShadow: [
                 BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+                BoxShadow(
                   color: AppColors.primary.withOpacity(0.04),
-                  blurRadius: 10,
+                  blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
               ],
@@ -71,18 +77,18 @@ class ReadingCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: AppColors.primarySoft,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        reading.category,
-                        style: AppTextStyles.labelBold.copyWith(fontSize: 10),
-                      ),
-                    ),
+                    // Container(
+                    //   padding: const EdgeInsets.symmetric(
+                    //       horizontal: 8, vertical: 3),
+                    //   decoration: BoxDecoration(
+                    //     color: AppColors.primarySoft,
+                    //     borderRadius: BorderRadius.circular(6),
+                    //   ),
+                    //   child: Text(
+                    //     reading.category,
+                    //     style: AppTextStyles.labelBold.copyWith(fontSize: 10),
+                    //   ),
+                    // ),
                     const SizedBox(height: 8),
                     Icon(
                       Icons.arrow_forward_ios_rounded,

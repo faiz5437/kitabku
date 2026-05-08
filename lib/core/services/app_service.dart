@@ -16,6 +16,10 @@ class AppService extends ChangeNotifier {
   bool _showTranslation = true;
   String _fontFamily = 'Amiri';
 
+  // Last Read
+  String _lastReadTitle = '';
+  String _lastReadId = '';
+
   // Bookmarks (Simpan sebagai list of BookmarkModel)
   List<BookmarkModel> _bookmarks = [];
 
@@ -23,6 +27,8 @@ class AppService extends ChangeNotifier {
   bool get showLatin => _showLatin;
   bool get showTranslation => _showTranslation;
   String get fontFamily => _fontFamily;
+  String get lastReadTitle => _lastReadTitle;
+  String get lastReadId => _lastReadId;
   List<BookmarkModel> get bookmarks => _bookmarks;
 
   Future<void> init() async {
@@ -31,6 +37,8 @@ class AppService extends ChangeNotifier {
     _showLatin = _prefs.getBool('showLatin') ?? true;
     _showTranslation = _prefs.getBool('showTranslation') ?? true;
     _fontFamily = _prefs.getString('fontFamily') ?? 'Amiri';
+    _lastReadTitle = _prefs.getString('lastReadTitle') ?? '';
+    _lastReadId = _prefs.getString('lastReadId') ?? '';
 
     final bookmarkString = _prefs.getString('bookmarks') ?? '[]';
     try {
@@ -75,6 +83,15 @@ class AppService extends ChangeNotifier {
   Future<void> setFontFamily(String font) async {
     _fontFamily = font;
     await _prefs.setString('fontFamily', font);
+    notifyListeners();
+  }
+
+  // Last Read
+  Future<void> setLastRead(String id, String title) async {
+    _lastReadId = id;
+    _lastReadTitle = title;
+    await _prefs.setString('lastReadId', id);
+    await _prefs.setString('lastReadTitle', title);
     notifyListeners();
   }
 

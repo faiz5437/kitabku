@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 /// Typography system untuk aplikasi KitabKu
 class AppTextStyles {
   AppTextStyles._();
 
+  static String get _fontFamily => GoogleFonts.plusJakartaSans().fontFamily!;
+
   // ── Heading ──
-  static const TextStyle heading1 = TextStyle(
+  static TextStyle heading1 = GoogleFonts.plusJakartaSans(
     fontSize: 28,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
@@ -14,7 +17,7 @@ class AppTextStyles {
     height: 1.3,
   );
 
-  static const TextStyle heading2 = TextStyle(
+  static TextStyle heading2 = GoogleFonts.plusJakartaSans(
     fontSize: 22,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -22,7 +25,7 @@ class AppTextStyles {
     height: 1.3,
   );
 
-  static const TextStyle heading3 = TextStyle(
+  static TextStyle heading3 = GoogleFonts.plusJakartaSans(
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -30,21 +33,21 @@ class AppTextStyles {
   );
 
   // ── Body ──
-  static const TextStyle bodyLarge = TextStyle(
+  static TextStyle bodyLarge = GoogleFonts.plusJakartaSans(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
     height: 1.5,
   );
 
-  static const TextStyle bodyMedium = TextStyle(
+  static TextStyle bodyMedium = GoogleFonts.plusJakartaSans(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
     height: 1.5,
   );
 
-  static const TextStyle bodySmall = TextStyle(
+  static TextStyle bodySmall = GoogleFonts.plusJakartaSans(
     fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.textLight,
@@ -52,22 +55,22 @@ class AppTextStyles {
   );
 
   // ── Label ──
-  static const TextStyle label = TextStyle(
+  static TextStyle label = GoogleFonts.plusJakartaSans(
     fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
     letterSpacing: 0.5,
   );
 
-  static const TextStyle labelBold = TextStyle(
+  static TextStyle labelBold = GoogleFonts.plusJakartaSans(
     fontSize: 12,
     fontWeight: FontWeight.w700,
     color: AppColors.primary,
     letterSpacing: 0.5,
   );
 
-  // ── Arabic Text ──
-  static const TextStyle arabicLarge = TextStyle(
+  // ── Arabic Text (menggunakan Amiri untuk teks Arab) ──
+  static TextStyle arabicLarge = GoogleFonts.amiri(
     fontSize: 32,
     fontWeight: FontWeight.w400,
     color: AppColors.textArabic,
@@ -75,14 +78,14 @@ class AppTextStyles {
     letterSpacing: 0,
   );
 
-  static const TextStyle arabicMedium = TextStyle(
+  static TextStyle arabicMedium = GoogleFonts.amiri(
     fontSize: 24,
     fontWeight: FontWeight.w400,
     color: AppColors.textArabic,
     height: 2.0,
   );
 
-  static const TextStyle arabicSmall = TextStyle(
+  static TextStyle arabicSmall = GoogleFonts.amiri(
     fontSize: 20,
     fontWeight: FontWeight.w400,
     color: AppColors.textArabic,
@@ -90,7 +93,7 @@ class AppTextStyles {
   );
 
   // ── Button ──
-  static const TextStyle button = TextStyle(
+  static TextStyle button = GoogleFonts.plusJakartaSans(
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.textOnPrimary,
@@ -98,14 +101,14 @@ class AppTextStyles {
   );
 
   // ── On Primary (White text) ──
-  static const TextStyle headingOnPrimary = TextStyle(
+  static TextStyle headingOnPrimary = GoogleFonts.plusJakartaSans(
     fontSize: 22,
     fontWeight: FontWeight.w700,
     color: AppColors.textOnPrimary,
     letterSpacing: -0.3,
   );
 
-  static const TextStyle bodyOnPrimary = TextStyle(
+  static TextStyle bodyOnPrimary = GoogleFonts.plusJakartaSans(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: Colors.white70,

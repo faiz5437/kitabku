@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 /// ThemeData utama untuk aplikasi KitabKu
 class AppTheme {
   AppTheme._();
+
+  static String get fontFamily => GoogleFonts.plusJakartaSans().fontFamily!;
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -11,7 +14,7 @@ class AppTheme {
       brightness: Brightness.light,
       primaryColor: AppColors.primary,
       scaffoldBackgroundColor: AppColors.backgroundPrimary,
-      fontFamily: 'Poppins',
+      fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
 
       // ── Color Scheme ──
       colorScheme: const ColorScheme.light(
@@ -24,45 +27,44 @@ class AppTheme {
       ),
 
       // ── AppBar ──
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
         foregroundColor: AppColors.textOnPrimary,
-        titleTextStyle: TextStyle(
+        titleTextStyle: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textOnPrimary,
-          fontFamily: 'Poppins',
         ),
       ),
 
       // ── Card ──
       cardTheme: CardThemeData(
-        elevation: 0,
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.08),
         color: AppColors.backgroundCard,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border, width: 0.5),
+          side:
+              BorderSide(color: AppColors.border.withOpacity(0.3), width: 0.5),
         ),
       ),
 
       // ── Bottom Navigation ──
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.backgroundSecondary,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textLight,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: TextStyle(
+        selectedLabelStyle: GoogleFonts.plusJakartaSans(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          fontFamily: 'Poppins',
         ),
-        unselectedLabelStyle: TextStyle(
+        unselectedLabelStyle: GoogleFonts.plusJakartaSans(
           fontSize: 11,
           fontWeight: FontWeight.w400,
-          fontFamily: 'Poppins',
         ),
       ),
 
@@ -82,10 +84,9 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(
+          textStyle: GoogleFonts.plusJakartaSans(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            fontFamily: 'Poppins',
           ),
         ),
       ),

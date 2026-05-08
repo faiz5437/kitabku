@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../config/theme/app_colors.dart';
 import '../../config/theme/app_text_styles.dart';
+import '../../core/services/app_service.dart';
 import '../../core/widgets/islamic_pattern_painter.dart';
 import '../../data/models/reading_model.dart';
 
@@ -19,19 +20,45 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
   bool _showLatin = true;
   bool _showTranslation = true;
   double _arabicFontSize = 28;
+  final ScrollController _scrollController = ScrollController();
+  bool _isCollapsed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    // Simpan sebagai terakhir dibaca
+    AppService().setLastRead(widget.reading.id, widget.reading.title);
+  }
+
+  void _onScroll() {
+    final isCollapsed = _scrollController.hasClients &&
+        _scrollController.offset > (200 - kToolbarHeight - 20);
+    if (isCollapsed != _isCollapsed) {
+      setState(() => _isCollapsed = isCollapsed);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
       body: CustomScrollView(
+        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
           // ── Header ──
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
-            backgroundColor: AppColors.primary,
+            backgroundColor: Colors.transparent,
             automaticallyImplyLeading: !(widget.reading.id == 'yasin-fadilah' ||
                 widget.reading.id == 'tahlil' ||
                 widget.reading.id == 'husainiyah'),
@@ -44,7 +71,8 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
                     icon: const Icon(Icons.arrow_back_ios_rounded),
                   ),
             actions: [
-              if (widget.reading.images == null && widget.reading.imageUrl == null) ...[
+              if (widget.reading.images == null &&
+                  widget.reading.imageUrl == null) ...[
                 IconButton(
                   onPressed: _showSettingsSheet,
                   icon: const Icon(Icons.tune_rounded),
@@ -55,61 +83,89 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
                 ),
               ],
             ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: AppColors.islamicGradient,
-                ),
-                child: IslamicPatternBackground(
-                  patternOpacity: 0.06,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 40),
-                        // Decorative frame
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
-                              width: 1,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                widget.reading.title,
-                                style: AppTextStyles.headingOnPrimary.copyWith(
-                                  fontSize: 24,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                widget.reading.subtitle,
-                                style: AppTextStyles.bodyOnPrimary,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        // Bismillah
-                        Text(
-                          'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
-                      ],
+            flexibleSpace: Stack(
+              children: [
+                // Gradient background + pattern (selalu terlihat)
+                Positioned.fill(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: AppColors.islamicGradient,
+                    ),
+                    child: CustomPaint(
+                      painter: IslamicPatternPainter(
+                        color: Colors.white,
+                        opacity: 0.06,
+                      ),
                     ),
                   ),
                 ),
-              ),
+                // Content saat expanded + title saat collapsed
+                FlexibleSpaceBar(
+                  title: AnimatedOpacity(
+                    opacity: _isCollapsed ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Text(
+                      widget.reading.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  centerTitle: true,
+                  background: Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 40),
+                          // Decorative frame
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  widget.reading.title,
+                                  style:
+                                      AppTextStyles.headingOnPrimary.copyWith(
+                                    fontSize: 24,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  widget.reading.subtitle,
+                                  style: AppTextStyles.bodyOnPrimary,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Bismillah
+                          Text(
+                            'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -119,230 +175,230 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
                 ? Column(
                     children: [
                       ...widget.reading.images!.map((imagePath) => Padding(
-                                padding: const EdgeInsets.only(bottom: 0),
-                                child: Image.asset(
-                                  imagePath,
+                            padding: const EdgeInsets.only(bottom: 0),
+                            child: Image.asset(
+                              imagePath,
+                              width: double.infinity,
+                              fit: BoxFit.fitWidth,
+                              errorBuilder: (context, error, stackTrace) {
+                                return _buildErrorImage();
+                              },
+                            ),
+                          )),
+                      const SizedBox(height: 100),
+                    ],
+                  )
+                : widget.reading.imageUrl != null
+                    ? Column(
+                        children: [
+                          // Check if network or asset
+                          widget.reading.imageUrl!.startsWith('http')
+                              ? Image.network(
+                                  widget.reading.imageUrl!,
+                                  width: double.infinity,
+                                  fit: BoxFit.fitWidth,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      height: 300,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.primary,
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return _buildErrorImage();
+                                  },
+                                )
+                              : Image.asset(
+                                  widget.reading.imageUrl!,
                                   width: double.infinity,
                                   fit: BoxFit.fitWidth,
                                   errorBuilder: (context, error, stackTrace) {
                                     return _buildErrorImage();
                                   },
                                 ),
-                              )),
-                      const SizedBox(height: 100),
-                    ],
-                  )
-                : widget.reading.imageUrl != null
-                        ? Column(
-                            children: [
-                              // Check if network or asset
-                              widget.reading.imageUrl!.startsWith('http')
-                                  ? Image.network(
-                                      widget.reading.imageUrl!,
-                                      width: double.infinity,
-                                      fit: BoxFit.fitWidth,
-                                      loadingBuilder:
-                                          (context, child, loadingProgress) {
-                                        if (loadingProgress == null)
-                                          return child;
-                                        return Container(
-                                          height: 300,
-                                          child: Center(
-                                            child: CircularProgressIndicator(
-                                              color: AppColors.primary,
-                                              value: loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                          .cumulativeBytesLoaded /
-                                                      loadingProgress
-                                                          .expectedTotalBytes!
-                                                  : null,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return _buildErrorImage();
-                                      },
-                                    )
-                                  : Image.asset(
-                                      widget.reading.imageUrl!,
-                                      width: double.infinity,
-                                      fit: BoxFit.fitWidth,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return _buildErrorImage();
-                                      },
-                                    ),
-                              const SizedBox(height: 100),
-                            ],
-                          )
-                : Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Arabic text
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: AppColors.backgroundCard,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: AppColors.border,
-                              width: 0.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withOpacity(0.05),
-                                blurRadius: 15,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Section label
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 4,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.gold,
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
+                          const SizedBox(height: 100),
+                        ],
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Arabic text
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: AppColors.backgroundCard,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: AppColors.border,
+                                  width: 0.5,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primary.withOpacity(0.05),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 4),
                                   ),
-                                  const SizedBox(width: 8),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  // Section label
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 4,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.gold,
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Teks Arab',
+                                        style: AppTextStyles.label.copyWith(
+                                          color: AppColors.gold,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+
+                                  // Arabic content
                                   Text(
-                                    'Teks Arab',
-                                    style: AppTextStyles.label.copyWith(
-                                      color: AppColors.gold,
-                                      fontWeight: FontWeight.w600,
+                                    widget.reading.arabicText,
+                                    textAlign: TextAlign.right,
+                                    textDirection: TextDirection.rtl,
+                                    style: AppTextStyles.arabicLarge.copyWith(
+                                      fontSize: _arabicFontSize,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 20),
+                            ),
 
-                              // Arabic content
-                              Text(
-                                widget.reading.arabicText,
-                                textAlign: TextAlign.right,
-                                textDirection: TextDirection.rtl,
-                                style: AppTextStyles.arabicLarge.copyWith(
-                                  fontSize: _arabicFontSize,
+                            // Latin text
+                            if (_showLatin) ...[
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: AppColors.backgroundCard,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: AppColors.border,
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 4,
+                                          height: 20,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary,
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Bacaan Latin',
+                                          style: AppTextStyles.label.copyWith(
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      widget.reading.latinText,
+                                      style: AppTextStyles.bodyLarge.copyWith(
+                                        fontStyle: FontStyle.italic,
+                                        height: 1.8,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
-                          ),
+
+                            // Translation
+                            if (_showTranslation) ...[
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primarySoft.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: AppColors.primary.withOpacity(0.1),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 4,
+                                          height: 20,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.accent,
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Terjemahan',
+                                          style: AppTextStyles.label.copyWith(
+                                            color: AppColors.accent,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      widget.reading.translationText,
+                                      style: AppTextStyles.bodyLarge.copyWith(
+                                        height: 1.8,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+
+                            const SizedBox(height: 100),
+                          ],
                         ),
-
-                        // Latin text
-                        if (_showLatin) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: AppColors.backgroundCard,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: AppColors.border,
-                                width: 0.5,
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 4,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primary,
-                                        borderRadius: BorderRadius.circular(2),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Bacaan Latin',
-                                      style: AppTextStyles.label.copyWith(
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  widget.reading.latinText,
-                                  style: AppTextStyles.bodyLarge.copyWith(
-                                    fontStyle: FontStyle.italic,
-                                    height: 1.8,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-
-                        // Translation
-                        if (_showTranslation) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: AppColors.primarySoft.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: AppColors.primary.withOpacity(0.1),
-                                width: 0.5,
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 4,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.accent,
-                                        borderRadius: BorderRadius.circular(2),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Terjemahan',
-                                      style: AppTextStyles.label.copyWith(
-                                        color: AppColors.accent,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  widget.reading.translationText,
-                                  style: AppTextStyles.bodyLarge.copyWith(
-                                    height: 1.8,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-
-                        const SizedBox(height: 100),
-                      ],
-                    ),
-                  ),
+                      ),
           ),
         ],
       ),
@@ -394,8 +450,7 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text('Pengaturan Tampilan',
-                      style: AppTextStyles.heading3),
+                  Text('Pengaturan Tampilan', style: AppTextStyles.heading3),
                   const SizedBox(height: 20),
 
                   // Font size slider
@@ -414,8 +469,8 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
 
                   // Toggle Latin
                   SwitchListTile(
-                    title: Text('Tampilkan Latin',
-                        style: AppTextStyles.bodyLarge),
+                    title:
+                        Text('Tampilkan Latin', style: AppTextStyles.bodyLarge),
                     value: _showLatin,
                     activeColor: AppColors.primary,
                     contentPadding: EdgeInsets.zero,
