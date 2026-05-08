@@ -118,7 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onTap: () {
                           // Hardcoded link as requested
                           const shareLink =
-                              'https://play.google.com/store/apps/details?id=com.faiz.kitabku';
+                              'https://drive.google.com/drive/folders/1YhW46f-cNCBSX89h0lsHbilhdvLsl-wI?usp=sharing';
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text('Link disalin: $shareLink')),
