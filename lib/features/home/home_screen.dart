@@ -46,112 +46,97 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppColors.backgroundPrimary,
       body: Column(
         children: [
-          // ── Fixed Top Header ──
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          // ── FIXED TOP AREA (Non-Scrollable) ──
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.backgroundPrimary,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              bottom: false,
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.menu_book_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
+                  // 1. Hero Banner (Hanya muncul jika tidak sedang mencari)
+                  if (_searchQuery.isEmpty) const HeroBanner(),
+
+                  // 2. Search Bar (Sekarang di bawah Hero Banner)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'KitabKu',
-                        style: AppTextStyles.heading2.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  // ── Search Bar ──
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Cari bacaan atau surat...',
-                        hintStyle: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondary.withOpacity(0.5),
-                        ),
-                        prefixIcon: const Icon(
-                          Icons.search_rounded,
-                          color: AppColors.primary,
-                        ),
-                        suffixIcon: _searchQuery.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.close_rounded, size: 20),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  setState(() {
-                                    _searchQuery = '';
-                                  });
-                                },
-                              )
-                            : null,
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Cari bacaan atau surat...',
+                          hintStyle: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary.withOpacity(0.5),
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.search_rounded,
+                            color: AppColors.primary,
+                          ),
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon:
+                                      const Icon(Icons.close_rounded, size: 20),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() {
+                                      _searchQuery = '';
+                                    });
+                                  },
+                                )
+                              : null,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
 
-          // ── Scrollable Content ──
-          Expanded(
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                if (_searchQuery.isEmpty)
-                  const SliverToBoxAdapter(
-                    child: HeroBanner(),
-                  ),
-
-                // ── Section: Bacaan Surat ──
-                SliverToBoxAdapter(
-                  child: _SectionHeader(
+                  // 3. Section Header (Sekarang Statis/Fixed)
+                  _SectionHeader(
                     title: 'Daftar Bacaan',
                     subtitle: _searchQuery.isEmpty
                         ? '${filteredReadings.length} bacaan tersedia'
                         : 'Ditemukan ${filteredReadings.length} hasil',
                     icon: Icons.menu_book_rounded,
                   ),
-                ),
+                ],
+              ),
+            ),
+          ),
 
-                // ── List Surat ──
+          // ── SCROLLABLE CONTENT (Hanya Daftar Kartu Surat) ──
+          Expanded(
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                // List Surat
                 if (filteredReadings.isEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
@@ -189,34 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                /*
-                if (_searchQuery.isEmpty) ...[
-                  // ── Section: Doa Harian ──
-                  SliverToBoxAdapter(
-                    child: _SectionHeader(
-                      title: 'Doa Harian',
-                      subtitle: '${_allDoas.length} doa pilihan',
-                      icon: Icons.volunteer_activism_rounded,
-                    ),
-                  ),
-
-                  // ── List Doa (Quick preview, 4 items) ──
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final doa = _allDoas[index];
-                        return DoaCard(
-                          doa: doa,
-                          onTap: () => _openDoa(context, doa),
-                        );
-                      },
-                      childCount: _allDoas.length > 4 ? 4 : _allDoas.length,
-                    ),
-                  ),
-                ],
-                */
-
-                // Bottom spacing for floating navbar
+                // Spasi bawah agar tidak tertutup navbar
                 const SliverToBoxAdapter(
                   child: SizedBox(height: 120),
                 ),
@@ -262,7 +220,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       child: Row(
         children: [
           Icon(icon, color: AppColors.primary, size: 20),

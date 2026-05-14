@@ -1,25 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
 import '../../config/theme/app_colors.dart';
+import '../../config/theme/app_text_styles.dart';
+import '../../core/services/app_service.dart';
+import '../../data/models/surah_model.dart';
 import '../../data/models/surah_detail_model.dart';
 import '../../data/repositories/surah_repository.dart';
-import '../../core/services/app_service.dart';
 import '../../data/models/bookmark_model.dart';
 import '../../core/widgets/islamic_number_frame.dart';
 
 class SurahDetailScreen extends StatefulWidget {
-  const SurahDetailScreen({super.key, required this.nomor, this.initialAyat});
-
   final int nomor;
   final int? initialAyat;
+
+  const SurahDetailScreen({
+    Key? key,
+    required this.nomor,
+    this.initialAyat,
+  }) : super(key: key);
 
   @override
   State<SurahDetailScreen> createState() => _SurahDetailScreenState();
 }
 
 class _SurahDetailScreenState extends State<SurahDetailScreen> {
-  final SurahRepository _repository = SurahRepository();
   final AppService _appService = AppService();
+  final SurahRepository _surahRepository = SurahRepository();
   late Future<SurahDetailModel> _futureDetailSurah;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _targetKey = GlobalKey();
@@ -29,256 +36,253 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _futureDetailSurah = _repository.getDetailSurah(widget.nomor);
-    _appService.addListener(_rebuild);
+    _futureDetailSurah = _surahRepository.getDetailSurah(widget.nomor);
   }
 
   @override
   void dispose() {
-    _appService.removeListener(_rebuild);
+    _scrollController.dispose();
     super.dispose();
-  }
-
-  void _rebuild() {
-    if (mounted) setState(() {});
   }
 
   void _refreshData() {
     setState(() {
-      _futureDetailSurah = _repository.getDetailSurah(widget.nomor);
+      _futureDetailSurah = _surahRepository.getDetailSurah(widget.nomor);
     });
-  }
-
-  Widget _buildErrorView() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.wifi_off_rounded,
-                size: 64,
-                color: Colors.red.withOpacity(0.6),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Koneksi Gagal',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Tidak dapat memuat data surah.\nPastikan koneksi internet Anda aktif\ndan coba lagi.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 28),
-            ElevatedButton.icon(
-              onPressed: _refreshData,
-              icon: const Icon(Icons.refresh_rounded, size: 20),
-              label: const Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 14,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                elevation: 0,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Kembali'),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<SurahDetailModel>(
-        future: _futureDetailSurah,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            );
-          } else if (snapshot.hasError) {
-            return RefreshIndicator(
-              onRefresh: () async {
-                _refreshData();
-                await _futureDetailSurah;
-              },
-              color: AppColors.primary,
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
-                ),
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.8,
-                    child: _buildErrorView(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Color(0xFFE3F2FD),
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundPrimary,
+        body: FutureBuilder<SurahDetailModel>(
+          future: _futureDetailSurah,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              );
+            } else if (snapshot.hasError) {
+              return RefreshIndicator(
+                onRefresh: () async {
+                  _refreshData();
+                  await _futureDetailSurah;
+                },
+                color: AppColors.primary,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
                   ),
-                ],
-              ),
-            );
-          } else if (!snapshot.hasData) {
-            return const Center(child: Text('Data tidak ditemukan'));
-          }
-
-          final surah = snapshot.data!;
-
-          return CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverAppBar(
-                expandedHeight: 150,
-                floating: false,
-                pinned: true,
-                backgroundColor: AppColors.primary,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      child: _buildErrorView(),
+                    ),
+                  ],
                 ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.tune_rounded, color: Colors.white),
-                    onPressed: _showSettingsSheet,
-                  ),
-                ],
-                flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: true,
-                  title: Text(
-                    surah.namaLatin,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
+              );
+            } else if (!snapshot.hasData) {
+              return const Center(child: Text('Data tidak ditemukan'));
+            }
+
+            final surah = snapshot.data!;
+
+            return Column(
+              children: [
+                // Fixed Header Area (Light Blue Background)
+                Container(
+                  color: const Color.fromARGB(255, 255, 255, 255)
+                      .withOpacity(0.05), // Kembali ke biru sangat samar
+                  child: SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 30),
+                      child: Container(
+                        height: 80,
+                        decoration: BoxDecoration(
+                          gradient: AppColors.primaryGradient,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            // Watermark Icon
+                            Positioned(
+                              right: 60,
+                              top: -10,
+                              bottom: -10,
+                              child: Icon(
+                                Icons.menu_book_rounded,
+                                size: 80,
+                                color: Colors.white.withOpacity(0.1),
+                              ),
+                            ),
+                            // Header Content
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.arrow_back_ios_new_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Surah ${surah.namaLatin}',
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Container(
+                                        height: 2,
+                                        width: 50,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.6),
+                                          borderRadius:
+                                              BorderRadius.circular(1),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.tune_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    onPressed: _showSettingsSheet,
+                                  ),
+                                  const Icon(
+                                    Icons.menu_book_rounded,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                  const SizedBox(width: 12),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 20),
-                        Text(
-                          surah.nama,
-                          style: GoogleFonts.getFont(
-                            _appService.fontFamily,
-                            color: Colors.white70,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
+                ),
+
+                // Scrollable Content
+                Expanded(
+                  child: Container(
+                    color: AppColors.backgroundPrimary,
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      slivers: [
+                        // Shadow di bawah header
+                        SliverToBoxAdapter(
+                          child: Container(
+                            height: 4,
+                            decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        Text(
-                          '${surah.arti} • ${surah.jumlahAyat} Ayat',
-                          style: const TextStyle(
-                            color: Colors.white60,
-                            fontSize: 14,
-                          ),
+                        SliverPadding(
+                          padding: const EdgeInsets.all(16),
+                          sliver: (!_appService.showLatin &&
+                                  !_appService.showTranslation)
+                              ? SliverToBoxAdapter(
+                                  child: _buildMushafView(surah),
+                                )
+                              : SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      final ayat = surah.ayat[index];
+
+                                      // Trigger initial jump once to bring the target near the viewport
+                                      if (widget.initialAyat != null &&
+                                          _isInitialLoad) {
+                                        _isInitialLoad = false;
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          // Estimate position (approx 250px per verse)
+                                          double estimate =
+                                              (widget.initialAyat! - 1) * 250.0;
+                                          if (estimate > 0) {
+                                            _scrollController.jumpTo(estimate);
+                                          }
+                                        });
+                                      }
+
+                                      // Auto scroll logic for precise positioning
+                                      if (widget.initialAyat != null &&
+                                          ayat.nomorAyat ==
+                                              widget.initialAyat &&
+                                          !_hasScrolled) {
+                                        _hasScrolled = true;
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          if (_targetKey.currentContext !=
+                                              null) {
+                                            Scrollable.ensureVisible(
+                                              _targetKey.currentContext!,
+                                              duration: const Duration(
+                                                  milliseconds: 600),
+                                              curve: Curves.easeInOut,
+                                            );
+                                          }
+                                        });
+                                        return Container(
+                                          key: _targetKey,
+                                          child: _buildAyatItem(ayat,
+                                              surah.nomor, surah.namaLatin),
+                                        );
+                                      }
+
+                                      return _buildAyatItem(
+                                          ayat, surah.nomor, surah.namaLatin);
+                                    },
+                                    childCount: surah.ayat.length,
+                                  ),
+                                ),
                         ),
                       ],
                     ),
                   ),
                 ),
-              ),
-              // Shadow di bawah SliverAppBar
-              SliverToBoxAdapter(
-                child: Container(
-                  height: 4,
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: (!_appService.showLatin && !_appService.showTranslation)
-                    ? SliverToBoxAdapter(
-                        child: _buildMushafView(surah),
-                      )
-                    : SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final ayat = surah.ayat[index];
-
-                            // Trigger initial jump once to bring the target near the viewport
-                            if (widget.initialAyat != null && _isInitialLoad) {
-                              _isInitialLoad = false;
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                // Estimate position (approx 250px per verse)
-                                double estimate =
-                                    (widget.initialAyat! - 1) * 250.0;
-                                if (estimate > 0) {
-                                  _scrollController.jumpTo(estimate);
-                                }
-                              });
-                            }
-
-                            // Auto scroll logic for precise positioning
-                            if (widget.initialAyat != null &&
-                                ayat.nomorAyat == widget.initialAyat &&
-                                !_hasScrolled) {
-                              _hasScrolled = true;
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                if (_targetKey.currentContext != null) {
-                                  Scrollable.ensureVisible(
-                                    _targetKey.currentContext!,
-                                    duration: const Duration(milliseconds: 600),
-                                    curve: Curves.easeInOut,
-                                  );
-                                }
-                              });
-                              return Container(
-                                key: _targetKey,
-                                child: _buildAyatItem(
-                                    ayat, surah.nomor, surah.namaLatin),
-                              );
-                            }
-
-                            return _buildAyatItem(
-                                ayat, surah.nomor, surah.namaLatin);
-                          },
-                          childCount: surah.ayat.length,
-                        ),
-                      ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -299,7 +303,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                 ),
                 child: Text(
                   '${ayat.nomorAyat}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
@@ -316,12 +320,21 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                   color: AppColors.primary,
                 ),
                 onPressed: () {
-                  _appService.toggleVerseBookmark(
-                    BookmarkModel(
-                      surahNomor: surahNomor,
-                      ayatNomor: ayat.nomorAyat,
-                      surahName: surahName,
-                      ayatText: ayat.teksArab,
+                  final bookmark = BookmarkModel(
+                    surahNomor: surahNomor,
+                    ayatNomor: ayat.nomorAyat,
+                    surahName: surahName,
+                    ayatText: ayat.teksArab,
+                  );
+                  _appService.toggleVerseBookmark(bookmark);
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(_appService.isVerseBookmarked(
+                              surahNomor, ayat.nomorAyat)
+                          ? 'Ayat berhasil disimpan ke bookmark'
+                          : 'Ayat dihapus dari bookmark'),
+                      duration: const Duration(seconds: 1),
                     ),
                   );
                 },
@@ -329,7 +342,6 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          // Teks Arab dengan GoogleFonts Amiri & Ukuran Dinamis
           Text(
             ayat.teksArab,
             textAlign: TextAlign.right,
@@ -433,6 +445,28 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildErrorView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 60, color: Colors.red),
+          const SizedBox(height: 16),
+          const Text('Gagal memuat data surah'),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: _refreshData,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Coba Lagi'),
+          ),
+        ],
+      ),
     );
   }
 

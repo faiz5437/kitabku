@@ -68,7 +68,7 @@ class _IslamicFramePainter extends CustomPainter {
     const points = 8;
 
     // Rotating slightly to make it look better
-    const double rotation = pi / 8;
+    const double rotation = pi / 1;
 
     for (int i = 0; i < points * 2; i++) {
       final isOuter = i % 2 == 0;
