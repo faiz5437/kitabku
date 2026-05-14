@@ -161,17 +161,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'Versi 2.0.0',
                           style: AppTextStyles.bodySmall,
                         ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Developed by:',
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        const Text(
-                          'Muhamad Faiz, S.Kom',
-                          style:
-                              TextStyle(fontSize: 14, color: AppColors.primary),
-                        ),
                       ],
                     ),
                   ),
