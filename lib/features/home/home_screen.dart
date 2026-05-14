@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import '../../config/theme/app_colors.dart';
 import '../../config/theme/app_text_styles.dart';
 import '../../core/widgets/reading_card.dart';
-import '../../core/widgets/doa_card.dart';
 import '../../data/models/reading_model.dart';
 import '../../data/repositories/reading_repository.dart';
 import '../reading/reading_detail_screen.dart';
-import '../doa/doa_detail_screen.dart';
 import 'widgets/hero_banner.dart';
 
 /// Halaman utama aplikasi KitabKu
-/// Menampilkan hero banner, daftar surat, dan quick access doa
+/// Menampilkan hero banner dan daftar bacaan utama
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -22,7 +20,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final List<ReadingModel> _allReadings = ReadingRepository.getAllReadings();
-  final List<DoaModel> _allDoas = ReadingRepository.getAllDoa();
 
   @override
   void dispose() {
@@ -67,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // 2. Search Bar (Sekarang di bawah Hero Banner)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
+                    padding: const EdgeInsets.fromLTRB(16, 2, 16, 20),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -117,15 +114,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-
-                  // 3. Section Header (Sekarang Statis/Fixed)
-                  _SectionHeader(
-                    title: 'Daftar Bacaan',
-                    subtitle: _searchQuery.isEmpty
-                        ? '${filteredReadings.length} bacaan tersedia'
-                        : 'Ditemukan ${filteredReadings.length} hasil',
-                    icon: Icons.menu_book_rounded,
-                  ),
                 ],
               ),
             ),
@@ -133,52 +121,55 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // ── SCROLLABLE CONTENT (Hanya Daftar Kartu Surat) ──
           Expanded(
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                // List Surat
-                if (filteredReadings.isEmpty)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.search_off_rounded,
-                            size: 64,
-                            color: AppColors.textSecondary.withOpacity(0.2),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Tidak menemukan "${_searchQuery}"',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // List Surat
+                  if (filteredReadings.isEmpty)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.search_off_rounded,
+                              size: 64,
+                              color: AppColors.textSecondary.withOpacity(0.2),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Text(
+                              'Tidak menemukan "${_searchQuery}"',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final reading = filteredReadings[index];
+                          return ReadingCard(
+                            reading: reading,
+                            index: index,
+                            onTap: () => _openReading(context, reading),
+                          );
+                        },
+                        childCount: filteredReadings.length,
                       ),
                     ),
-                  )
-                else
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final reading = filteredReadings[index];
-                        return ReadingCard(
-                          reading: reading,
-                          index: index,
-                          onTap: () => _openReading(context, reading),
-                        );
-                      },
-                      childCount: filteredReadings.length,
-                    ),
-                  ),
 
-                // Spasi bawah agar tidak tertutup navbar
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 120),
-                ),
-              ],
+                  // Spasi bawah agar tidak tertutup navbar
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 120),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -191,48 +182,6 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => ReadingDetailScreen(reading: reading),
-      ),
-    );
-  }
-
-  void _openDoa(BuildContext context, DoaModel doa) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => DoaDetailScreen(doa: doa),
-      ),
-    );
-  }
-}
-
-/// Header section dengan title, subtitle, dan icon
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-
-  const _SectionHeader({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.primary, size: 20),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTextStyles.heading3),
-              Text(subtitle, style: AppTextStyles.bodySmall),
-            ],
-          ),
-        ],
       ),
     );
   }

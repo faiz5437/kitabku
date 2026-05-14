@@ -5,15 +5,15 @@ import '../../data/models/surah_model.dart';
 import '../../data/repositories/surah_repository.dart';
 import '../../config/theme/app_colors.dart';
 
-class ApiTestScreen extends StatefulWidget {
+class QuranScreen extends StatefulWidget {
   final bool isActive;
-  const ApiTestScreen({super.key, this.isActive = false});
+  const QuranScreen({super.key, this.isActive = false});
 
   @override
-  State<ApiTestScreen> createState() => _ApiTestScreenState();
+  State<QuranScreen> createState() => _QuranScreenState();
 }
 
-class _ApiTestScreenState extends State<ApiTestScreen>
+class _QuranScreenState extends State<QuranScreen>
     with AutomaticKeepAliveClientMixin {
   final SurahRepository _repository = SurahRepository();
   late Future<List<SurahModel>> _futureSurah;
@@ -28,7 +28,7 @@ class _ApiTestScreenState extends State<ApiTestScreen>
   }
 
   @override
-  void didUpdateWidget(ApiTestScreen oldWidget) {
+  void didUpdateWidget(QuranScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Jika halaman sebelumnya tidak aktif dan sekarang aktif, lakukan reload
     if (!oldWidget.isActive && widget.isActive) {

@@ -82,14 +82,40 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
                     child: Stack(
                       children: [
                         // Watermark Icon
+                        // Watermark Icon (Moved to Center & Lower)
                         Positioned(
-                          right: 40,
-                          top: -10,
-                          bottom: -10,
+                          left: 0,
+                          right: 0,
+                          bottom: -25,
                           child: Icon(
                             Icons.menu_book_rounded,
-                            size: 80,
-                            color: Colors.white.withOpacity(0.1),
+                            size: 100,
+                            color: Colors.white.withOpacity(0.08),
+                          ),
+                        ),
+                        // Decorative accents (Same as Hero Banner)
+                        Positioned(
+                          right: -20,
+                          top: -20,
+                          child: Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withOpacity(0.05),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: -10,
+                          bottom: -10,
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withOpacity(0.04),
+                            ),
                           ),
                         ),
                         // Header Content
@@ -124,7 +150,7 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen> {
                                   const SizedBox(height: 2),
                                   Container(
                                     height: 2,
-                                    width: 50,
+                                    width: 120, // Diperpanjang ke kanan
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(0.6),
                                       borderRadius: BorderRadius.circular(1),

@@ -40,10 +40,6 @@ class ReadingRepository {
       _doaAlfatihahImage,
       _nasyidTawasalnaImage,
       _nasyidAlMunajahImage,
-      // _husainiyah,
-      // _tahlil,
-      // _maulidDiba,
-      // _yasinFadilah,
     ];
   }
 
@@ -332,17 +328,7 @@ mereka kekal di dalamnya untuk selama-lamanya, (3)''',
     source: 'HR. Abu Dawud & Tirmidzi',
   );
 
-  static const _bacaanImage = ReadingModel(
-    id: 'bacaan-image',
-    title: 'Bacaan Gambar',
-    subtitle: 'Contoh bacaan menggunakan gambar panjang',
-    category: 'E-Book',
-    icon: Icons.image_rounded,
-    arabicText: '',
-    latinText: '',
-    translationText: '',
-    imageUrl: 'assets/images/content_11.jpg',
-  );
+
 
   static const _manaqib1 = ReadingModel(
     id: 'manaqib-1',

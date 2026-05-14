@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'config/theme/app_theme.dart';
 import 'config/theme/app_colors.dart';
 import 'features/home/home_screen.dart';
-import 'features/home/api_test_screen.dart';
+import 'features/home/quran_screen.dart';
 import 'features/reading/reading_detail_screen.dart';
 import 'data/repositories/reading_repository.dart';
 import 'features/settings/settings_screen.dart';
@@ -58,7 +58,7 @@ class _MainNavigationState extends State<MainNavigation>
 
   List<Widget> get _screens => [
         const HomeScreen(),
-        ApiTestScreen(isActive: _currentIndex == 1),
+        QuranScreen(isActive: _currentIndex == 1),
         ReadingDetailScreen(reading: ReadingRepository.getYasinFadilah()),
         ReadingDetailScreen(reading: ReadingRepository.getTahlil()),
         ReadingDetailScreen(reading: ReadingRepository.getHusainiyah()),
